@@ -17,7 +17,7 @@ import {
 	sortableKeyboardCoordinates,
 } from '@dnd-kit/sortable'
 import { useMemo, useState, type FormEvent } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, Link } from 'react-router-dom'
 import { BoardColumn } from '../components/BoardColumn'
 import { CardModal } from '../components/CardModal'
 import { useCreateCard, useDeleteCard, useReorderCards, useUpdateCard } from '../hooks/useCards'
@@ -53,6 +53,22 @@ function buildCardMoves(board: BoardWithLists) {
 
 export function BoardPage() {
 	const { boardId = '' } = useParams()
+
+	if (!boardId) {
+		return (
+			<div className="page-status page-status--error">
+				<p className="form-error">Board not found.</p>
+				<Link to="/boards" className="btn btn--primary">
+					Back to boards
+				</Link>
+			</div>
+		)
+	}
+
+	return <BoardPageContent boardId={boardId} />
+}
+
+function BoardPageContent({ boardId }: { boardId: string }) {
 	const { data: board, isLoading, error, refetch } = useBoard(boardId)
 	const createList = useCreateList(boardId)
 	const updateList = useUpdateList(boardId)

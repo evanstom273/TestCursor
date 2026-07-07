@@ -12,6 +12,9 @@ export async function configureNativeStatusBar(theme: Theme = 'dark'): Promise<v
 		return
 	}
 
+	document.documentElement.dataset.nativeShell = 'true'
+	document.documentElement.dataset.platform = Capacitor.getPlatform()
+
 	const { StatusBar, Style } = await import('@capacitor/status-bar')
 
 	await StatusBar.setOverlaysWebView({ overlay: false })
@@ -20,5 +23,11 @@ export async function configureNativeStatusBar(theme: Theme = 'dark'): Promise<v
 
 	if (Capacitor.getPlatform() === 'android') {
 		await StatusBar.show()
+		applyAndroidSafeAreaFallback()
 	}
+}
+
+function applyAndroidSafeAreaFallback(): void {
+	// Android WebView usually reports env(safe-area-inset-*) as 0px.
+	document.documentElement.style.setProperty('--native-safe-top', '40px')
 }

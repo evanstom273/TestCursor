@@ -1,12 +1,51 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '../lib/supabaseClient'
 import type { BoardWithLists, Card, List } from '../types/database'
+
+const CARD_SELECT =
+	'id, list_id, title, description, position, content_json'
+
+async function fetchBoardCards(listIds: string[]): Promise<{
+	cards: Card[]
+	loadWarnings?: string[]
+}> {
+	const { data: cardData, error: cardsError } = await supabase
+		.from('cards')
+		.select(CARD_SELECT)
+		.in('list_id', listIds)
+		.order('position', { ascending: true })
+
+	if (!cardsError) {
+		return { cards: (cardData ?? []) as Card[] }
+	}
+
+	const { data: fallbackCards, error: fallbackError } = await supabase
+		.from('cards')
+		.select('id, list_id, title, description, position')
+		.in('list_id', listIds)
+		.order('position', { ascending: true })
+
+	if (!fallbackError) {
+		return {
+			cards: (fallbackCards ?? []) as Card[],
+			loadWarnings: ['Rich text metadata unavailable. Run migration 002 in Supabase.'],
+		}
+	}
+
+	return {
+		cards: [],
+		loadWarnings: [`Cards failed to load: ${fallbackError.message}`],
+	}
+}
 
 export function useBoard(boardId: string | undefined) {
 	return useQuery({
 		queryKey: ['board', boardId],
 		enabled: Boolean(boardId),
-		retry: 2,
+		retry: 3,
+		retryDelay: (attempt) => Math.min(1_000 * 2 ** attempt, 8_000),
+		refetchOnReconnect: true,
+		placeholderData: keepPreviousData,
 		queryFn: async (): Promise<BoardWithLists> => {
 			const { data: board, error: boardError } = await supabase
 				.from('boards')
@@ -34,17 +73,9 @@ export function useBoard(boardId: string | undefined) {
 			let loadWarnings: string[] | undefined
 
 			if (listIds.length > 0) {
-				const { data: cardData, error: cardsError } = await supabase
-					.from('cards')
-					.select('*')
-					.in('list_id', listIds)
-					.order('position', { ascending: true })
-
-				if (cardsError) {
-					loadWarnings = ['Cards failed to load.']
-				} else {
-					cards = cardData ?? []
-				}
+				const cardResult = await fetchBoardCards(listIds)
+				cards = cardResult.cards
+				loadWarnings = cardResult.loadWarnings
 			}
 
 			if (cards.length > 0) {

@@ -4,7 +4,7 @@ import { useBoards, useCreateBoard } from '../hooks/useBoards'
 
 export function HomePage() {
 	const navigate = useNavigate()
-	const { data: boards = [], isLoading } = useBoards()
+	const { data: boards = [], isLoading, error, refetch } = useBoards()
 	const createBoard = useCreateBoard()
 	const [newTitle, setNewTitle] = useState('')
 	const recentBoards = boards.slice(0, 5)
@@ -54,16 +54,32 @@ export function HomePage() {
 
 			<section className="home-recent">
 				<h3>Recent boards</h3>
-				{isLoading ? <p className="muted">Loading…</p> : null}
-				{!isLoading && recentBoards.length === 0 ? (
+				{isLoading && boards.length === 0 ? <p className="muted">Loading…</p> : null}
+				{error && boards.length === 0 ? (
+					<div className="page-status page-status--error">
+						<p className="form-error">Failed to load boards.</p>
+						<button type="button" className="btn btn--primary btn--small" onClick={() => void refetch()}>
+							Try again
+						</button>
+					</div>
+				) : null}
+				{!isLoading && !error && recentBoards.length === 0 ? (
 					<p className="muted">No boards yet.</p>
 				) : (
-					<ul className="home-recent__list">
+					<ul className="board-list home-recent__list">
 						{recentBoards.map((board) => (
-							<li key={board.id}>
-								<Link to={`/boards/${board.id}`} className="home-recent__link">
-									{board.title}
+							<li key={board.id} className="board-list__item">
+								<Link to={`/boards/${board.id}`} className="board-list__main">
+									<span className="board-list__title">
+										{board.title.trim() || 'Untitled board'}
+									</span>
+									<span className="board-list__hint">Open board</span>
 								</Link>
+								<div className="board-list__actions">
+									<Link to={`/boards/${board.id}`} className="btn btn--primary btn--small">
+										Open
+									</Link>
+								</div>
 							</li>
 						))}
 					</ul>

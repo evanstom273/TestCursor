@@ -66,9 +66,14 @@ body {
 	min-height: 100vh;
 	background: var(--bg);
 	color: var(--text);
-	padding-top: env(safe-area-inset-top, 0px);
-	padding-left: env(safe-area-inset-left, 0px);
-	padding-right: env(safe-area-inset-right, 0px);
+}
+
+html[data-native-shell='true'] {
+	--native-safe-top: max(env(safe-area-inset-top, 0px), var(--native-safe-top, 0px));
+}
+
+html[data-platform='android'] {
+	--native-safe-top: 40px;
 }
 
 #root {

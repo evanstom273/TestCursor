@@ -7,9 +7,11 @@ import { NativeInit } from './components/NativeInit.tsx'
 import { AuthProvider } from './contexts/AuthContext.tsx'
 import { SettingsProvider } from './contexts/SettingsContext.tsx'
 import { applyTheme, loadSettings } from './lib/settings.ts'
+import { initNativeShell } from './lib/nativeShell.ts'
 import './index.css'
 import './app.css'
 
+initNativeShell()
 applyTheme(loadSettings().theme)
 
 const queryClient = new QueryClient({
@@ -18,6 +20,7 @@ const queryClient = new QueryClient({
 			staleTime: 30_000,
 			retry: 2,
 			refetchOnWindowFocus: true,
+			refetchOnReconnect: true,
 		},
 	},
 })

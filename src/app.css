@@ -5,7 +5,7 @@
 	display: grid;
 	place-items: center;
 	min-height: 100vh;
-	padding: 2rem;
+	padding: calc(2rem + var(--native-safe-top, env(safe-area-inset-top, 0px))) 2rem 2rem;
 	overflow: hidden;
 	background: var(--shell-gradient);
 }
@@ -230,7 +230,7 @@ textarea:focus {
 	justify-content: space-between;
 	align-items: center;
 	gap: 1rem;
-	padding: 1rem 1.5rem;
+	padding: calc(1rem + var(--native-safe-top, env(safe-area-inset-top, 0px))) 1.5rem 1rem;
 	border-bottom: 1px solid var(--border);
 	background: color-mix(in srgb, var(--bg-elevated) 88%, transparent);
 	backdrop-filter: blur(12px);
@@ -877,18 +877,7 @@ textarea:focus {
 }
 
 .home-recent__list {
-	list-style: none;
-	margin: 0;
-	padding: 0;
-	display: flex;
-	flex-direction: column;
-	gap: 0.5rem;
-}
-
-.home-recent__link {
-	color: var(--accent-soft);
-	text-decoration: none;
-	font-weight: 600;
+	margin-top: 0.5rem;
 }
 
 .settings-section {
@@ -973,7 +962,7 @@ textarea:focus {
 		bottom: 0;
 		z-index: 35;
 		width: min(16rem, 85vw);
-		padding-top: calc(1rem + env(safe-area-inset-top, 0px));
+		padding-top: calc(1rem + var(--native-safe-top, env(safe-area-inset-top, 0px)));
 		transform: translateX(-100%);
 		transition: transform 0.2s ease;
 		box-shadow: 0 0 0 rgba(0, 0, 0, 0);
