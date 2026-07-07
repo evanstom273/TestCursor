@@ -3,9 +3,13 @@ import { Navigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { isSupabaseConfigured } from '../lib/supabaseClient'
 
+type AuthMode = 'password' | 'magic-link'
+
 export function LoginPage() {
-	const { session, signInWithEmail } = useAuth()
+	const { session, signInWithEmail, signInWithPassword, signUpWithPassword } = useAuth()
+	const [mode, setMode] = useState<AuthMode>('password')
 	const [email, setEmail] = useState('')
+	const [password, setPassword] = useState('')
 	const [message, setMessage] = useState<string | null>(null)
 	const [error, setError] = useState<string | null>(null)
 	const [submitting, setSubmitting] = useState(false)
@@ -14,7 +18,38 @@ export function LoginPage() {
 		return <Navigate to="/boards" replace />
 	}
 
-	const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+	const handlePasswordSignIn = async (event: FormEvent<HTMLFormElement>) => {
+		event.preventDefault()
+		setSubmitting(true)
+		setError(null)
+		setMessage(null)
+
+		const result = await signInWithPassword(email.trim(), password)
+
+		if (result.error) {
+			setError(result.error)
+		}
+
+		setSubmitting(false)
+	}
+
+	const handlePasswordSignUp = async () => {
+		setSubmitting(true)
+		setError(null)
+		setMessage(null)
+
+		const result = await signUpWithPassword(email.trim(), password)
+
+		if (result.error) {
+			setError(result.error)
+		} else {
+			setMessage('Account created. You should be signed in now.')
+		}
+
+		setSubmitting(false)
+	}
+
+	const handleMagicLink = async (event: FormEvent<HTMLFormElement>) => {
 		event.preventDefault()
 		setSubmitting(true)
 		setError(null)
@@ -37,7 +72,11 @@ export function LoginPage() {
 			<section className="auth-card">
 				<p className="eyebrow">TestCursor</p>
 				<h1>Personal boards</h1>
-				<p className="subtitle">Sign in with a magic link sent to your email.</p>
+				<p className="subtitle">
+					{mode === 'password'
+						? 'Sign in with email and password — no email sent.'
+						: 'Sign in with a magic link sent to your email.'}
+				</p>
 
 				{!isSupabaseConfigured ? (
 					<p className="form-error">
@@ -46,22 +85,82 @@ export function LoginPage() {
 					</p>
 				) : null}
 
-				<form className="auth-form" onSubmit={(event) => void handleSubmit(event)}>
-					<label className="field">
-						<span>Email</span>
-						<input
-							type="email"
-							value={email}
-							onChange={(event) => setEmail(event.target.value)}
-							placeholder="you@example.com"
-							required
-							autoComplete="email"
-						/>
-					</label>
-					<button type="submit" className="btn btn--primary" disabled={submitting}>
-						{submitting ? 'Sending…' : 'Send magic link'}
-					</button>
-				</form>
+				{mode === 'password' ? (
+					<form className="auth-form" onSubmit={(event) => void handlePasswordSignIn(event)}>
+						<label className="field">
+							<span>Email</span>
+							<input
+								type="email"
+								value={email}
+								onChange={(event) => setEmail(event.target.value)}
+								placeholder="you@example.com"
+								required
+								autoComplete="email"
+							/>
+						</label>
+						<label className="field">
+							<span>Password</span>
+							<input
+								type="password"
+								value={password}
+								onChange={(event) => setPassword(event.target.value)}
+								placeholder="At least 6 characters"
+								required
+								minLength={6}
+								autoComplete="current-password"
+							/>
+						</label>
+						<div className="auth-actions">
+							<button type="submit" className="btn btn--primary" disabled={submitting}>
+								{submitting ? 'Signing in…' : 'Sign in'}
+							</button>
+							<button
+								type="button"
+								className="btn btn--ghost"
+								disabled={submitting}
+								onClick={() => void handlePasswordSignUp()}
+							>
+								Create account
+							</button>
+						</div>
+					</form>
+				) : (
+					<form className="auth-form" onSubmit={(event) => void handleMagicLink(event)}>
+						<label className="field">
+							<span>Email</span>
+							<input
+								type="email"
+								value={email}
+								onChange={(event) => setEmail(event.target.value)}
+								placeholder="you@example.com"
+								required
+								autoComplete="email"
+							/>
+						</label>
+						<button type="submit" className="btn btn--primary" disabled={submitting}>
+							{submitting ? 'Sending…' : 'Send magic link'}
+						</button>
+					</form>
+				)}
+
+				<button
+					type="button"
+					className="btn btn--ghost auth-mode-toggle"
+					onClick={() => {
+						setMode(mode === 'password' ? 'magic-link' : 'password')
+						setError(null)
+						setMessage(null)
+					}}
+				>
+					{mode === 'password' ? 'Use magic link instead' : 'Use password instead'}
+				</button>
+
+				{mode === 'password' ? (
+					<p className="auth-hint">
+						First time? In Supabase → Authentication → Providers → Email, turn off{' '}
+						<strong>Confirm email</strong> so sign-up does not send mail.
+					</p>
+				) : null}
 
 				{message ? <p className="form-message">{message}</p> : null}
 				{error ? <p className="form-error">{error}</p> : null}
