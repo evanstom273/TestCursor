@@ -111,6 +111,33 @@ h1 {
 	font-weight: 600;
 }
 
+.auth-recovery {
+	margin-top: 1.25rem;
+	padding: 1rem;
+	border: 1px solid rgba(251, 191, 36, 0.25);
+	border-radius: 0.85rem;
+	background: rgba(251, 191, 36, 0.08);
+	text-align: left;
+}
+
+.auth-recovery__title {
+	margin: 0 0 0.75rem;
+	font-size: 0.9rem;
+	font-weight: 600;
+	color: #fde68a;
+}
+
+.auth-recovery__steps {
+	margin: 0;
+	padding-left: 1.2rem;
+	color: rgba(245, 247, 255, 0.78);
+	font-size: 0.875rem;
+}
+
+.auth-recovery__steps li + li {
+	margin-top: 0.45rem;
+}
+
 .inline-form {
 	flex-direction: row;
 	flex-wrap: wrap;

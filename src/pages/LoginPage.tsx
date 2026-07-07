@@ -156,10 +156,20 @@ export function LoginPage() {
 				</button>
 
 				{mode === 'password' ? (
-					<p className="auth-hint">
-						First time? In Supabase → Authentication → Providers → Email, turn off{' '}
-						<strong>Confirm email</strong> so sign-up does not send mail.
-					</p>
+					<div className="auth-recovery">
+						<p className="auth-recovery__title">Stuck? Reset in Supabase (30 seconds)</p>
+						<ol className="auth-recovery__steps">
+							<li>
+								<strong>Authentication → Providers → Email</strong> — turn off{' '}
+								<strong>Confirm email</strong>
+							</li>
+							<li>
+								<strong>Authentication → Users</strong> — delete your email if it is
+								listed
+							</li>
+							<li>Come back here and click <strong>Create account</strong></li>
+						</ol>
+					</div>
 				) : null}
 
 				{message ? <p className="form-message">{message}</p> : null}

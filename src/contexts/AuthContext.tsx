@@ -7,15 +7,25 @@ import {
 	type ReactNode,
 } from 'react'
 import type { Session, User } from '@supabase/supabase-js'
+import {
+	formatAuthError,
+	getExistingEmailMessage,
+	getSignUpBlockedMessage,
+} from '../lib/authErrors'
 import { supabase, getAuthCallbackUrl } from '../lib/supabaseClient'
+
+type AuthResult = {
+	error: string | null
+	success?: boolean
+}
 
 type AuthContextValue = {
 	session: Session | null
 	user: User | null
 	loading: boolean
-	signInWithEmail: (email: string) => Promise<{ error: string | null }>
-	signInWithPassword: (email: string, password: string) => Promise<{ error: string | null }>
-	signUpWithPassword: (email: string, password: string) => Promise<{ error: string | null }>
+	signInWithEmail: (email: string) => Promise<AuthResult>
+	signInWithPassword: (email: string, password: string) => Promise<AuthResult>
+	signUpWithPassword: (email: string, password: string) => Promise<AuthResult>
 	signOut: () => Promise<void>
 }
 
@@ -61,7 +71,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 					},
 				})
 
-				return { error: error?.message ?? null }
+				if (error) {
+					return { error: formatAuthError(error.message) }
+				}
+
+				return { error: null, success: true }
 			},
 			signInWithPassword: async (email: string, password: string) => {
 				const { error } = await supabase.auth.signInWithPassword({
@@ -69,15 +83,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 					password,
 				})
 
-				return { error: error?.message ?? null }
+				if (error) {
+					return { error: formatAuthError(error.message) }
+				}
+
+				return { error: null, success: true }
 			},
 			signUpWithPassword: async (email: string, password: string) => {
-				const { error } = await supabase.auth.signUp({
+				const { data, error } = await supabase.auth.signUp({
 					email,
 					password,
 				})
 
-				return { error: error?.message ?? null }
+				if (error) {
+					return { error: formatAuthError(error.message) }
+				}
+
+				if (data.user?.identities?.length === 0) {
+					return { error: getExistingEmailMessage() }
+				}
+
+				if (!data.session) {
+					return { error: getSignUpBlockedMessage() }
+				}
+
+				return { error: null, success: true }
 			},
 			signOut: async () => {
 				await supabase.auth.signOut()
