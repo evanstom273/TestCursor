@@ -1,18 +1,19 @@
-import './App.css'
+import { Navigate, Route, Routes } from 'react-router-dom'
+import { ProtectedRoute } from './components/ProtectedRoute'
+import { BoardPage } from './pages/BoardPage'
+import { BoardsPage } from './pages/BoardsPage'
+import { LoginPage } from './pages/LoginPage'
 
-function App() {
+export default function App() {
 	return (
-		<main className="page">
-			<div className="glow" aria-hidden="true" />
-			<section className="card">
-				<p className="eyebrow">TestCursor</p>
-				<h1>Coming soon</h1>
-				<p className="subtitle">
-					We&apos;re building something new. Check back shortly.
-				</p>
-			</section>
-		</main>
+		<Routes>
+			<Route path="/login" element={<LoginPage />} />
+			<Route element={<ProtectedRoute />}>
+				<Route path="/boards" element={<BoardsPage />} />
+				<Route path="/boards/:boardId" element={<BoardPage />} />
+			</Route>
+			<Route path="/" element={<Navigate to="/boards" replace />} />
+			<Route path="*" element={<Navigate to="/boards" replace />} />
+		</Routes>
 	)
 }
-
-export default App
