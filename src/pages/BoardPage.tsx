@@ -233,6 +233,15 @@ export function BoardPage() {
 
 			{boardState ? (
 				<>
+					{boardState.loadWarnings?.length ? (
+						<div className="page-status page-status--error board-warning">
+							<p className="form-error">{boardState.loadWarnings.join(' ')}</p>
+							<button type="button" className="btn btn--primary btn--small" onClick={() => void refetch()}>
+								Reload cards
+							</button>
+						</div>
+					) : null}
+
 					<form className="inline-form board-toolbar" onSubmit={(event) => void handleAddList(event)}>
 						<input
 							type="text"

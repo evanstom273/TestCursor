@@ -6,6 +6,7 @@ export function useChecklistItems(cardId: string | null) {
 	return useQuery({
 		queryKey: ['checklist', cardId],
 		enabled: Boolean(cardId),
+		retry: 2,
 		queryFn: async (): Promise<ChecklistItem[]> => {
 			const { data, error } = await supabase
 				.from('checklist_items')

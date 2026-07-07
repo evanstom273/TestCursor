@@ -88,7 +88,7 @@ function ChecklistRow({
 }
 
 export function Checklist({ boardId, cardId }: ChecklistProps) {
-	const { data: items = [], isLoading } = useChecklistItems(cardId)
+	const { data: items = [], isLoading, error, refetch } = useChecklistItems(cardId)
 	const createItem = useCreateChecklistItem(boardId, cardId)
 	const updateItem = useUpdateChecklistItem(boardId, cardId)
 	const deleteItem = useDeleteChecklistItem(boardId, cardId)
@@ -140,7 +140,15 @@ export function Checklist({ boardId, cardId }: ChecklistProps) {
 	return (
 		<section className="checklist">
 			<h3>Checklist</h3>
-			{isLoading ? <p className="muted">Loading checklist…</p> : null}
+			{isLoading && items.length === 0 ? <p className="muted">Loading checklist…</p> : null}
+			{error && items.length === 0 ? (
+				<div className="page-status page-status--error">
+					<p className="form-error">Failed to load checklist.</p>
+					<button type="button" className="btn btn--primary btn--small" onClick={() => void refetch()}>
+						Try again
+					</button>
+				</div>
+			) : null}
 
 			<DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
 				<SortableContext

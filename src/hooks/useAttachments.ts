@@ -30,6 +30,7 @@ export function useAttachments(cardId: string | null) {
 	return useQuery({
 		queryKey: ['attachments', cardId],
 		enabled: Boolean(cardId),
+		retry: 2,
 		queryFn: async (): Promise<CardAttachmentWithUrl[]> => {
 			const { data, error } = await supabase
 				.from('card_attachments')

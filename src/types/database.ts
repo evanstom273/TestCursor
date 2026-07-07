@@ -52,4 +52,5 @@ export type CardAttachmentWithUrl = CardAttachment & {
 
 export type BoardWithLists = Board & {
 	lists: (List & { cards: Card[] })[]
+	loadWarnings?: string[]
 }

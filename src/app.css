@@ -1024,3 +1024,11 @@ textarea:focus {
 	max-width: 24rem;
 	margin: 0 auto;
 }
+
+.board-warning {
+	flex-direction: row;
+	flex-wrap: wrap;
+	justify-content: center;
+	max-width: none;
+	margin-bottom: 0.5rem;
+}

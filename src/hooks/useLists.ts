@@ -31,6 +31,7 @@ export function useBoard(boardId: string | undefined) {
 			const listIds = (lists ?? []).map((list) => list.id)
 
 			let cards: Card[] = []
+			let loadWarnings: string[] | undefined
 
 			if (listIds.length > 0) {
 				const { data: cardData, error: cardsError } = await supabase
@@ -40,10 +41,10 @@ export function useBoard(boardId: string | undefined) {
 					.order('position', { ascending: true })
 
 				if (cardsError) {
-					throw cardsError
+					loadWarnings = ['Cards failed to load.']
+				} else {
+					cards = cardData ?? []
 				}
-
-				cards = cardData ?? []
 			}
 
 			if (cards.length > 0) {
@@ -73,6 +74,7 @@ export function useBoard(boardId: string | undefined) {
 					...list,
 					cards: cards.filter((card) => card.list_id === list.id),
 				})),
+				loadWarnings,
 			}
 		},
 	})
