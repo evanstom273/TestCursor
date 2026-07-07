@@ -14,4 +14,16 @@ if (!isSupabaseConfigured) {
 export const supabase = createClient(
 	supabaseUrl ?? 'https://placeholder.supabase.co',
 	supabaseAnonKey ?? 'placeholder-key',
+	{
+		auth: {
+			autoRefreshToken: true,
+			persistSession: true,
+			detectSessionInUrl: true,
+			flowType: 'pkce',
+		},
+	},
 )
+
+export function getAuthCallbackUrl(): string {
+	return `${window.location.origin}/auth/callback`
+}
