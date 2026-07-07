@@ -1,5 +1,7 @@
 import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { loadSettings } from '../lib/settings'
+import { configureNativeStatusBar } from '../lib/nativeStatusBar'
 import { isNativeApp } from '../lib/platform'
 
 export function NativeInit() {
@@ -11,8 +13,7 @@ export function NativeInit() {
 		}
 
 		const init = async () => {
-			const { StatusBar, Style } = await import('@capacitor/status-bar')
-			await StatusBar.setStyle({ style: Style.Dark })
+			await configureNativeStatusBar(loadSettings().theme)
 
 			const { App } = await import('@capacitor/app')
 

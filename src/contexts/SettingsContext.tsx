@@ -13,6 +13,7 @@ import {
 	type AppSettings,
 	type Theme,
 } from '../lib/settings'
+import { configureNativeStatusBar } from '../lib/nativeStatusBar'
 
 type SettingsContextValue = {
 	settings: AppSettings
@@ -30,6 +31,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
 	useEffect(() => {
 		applyTheme(settings.theme)
 		saveSettings(settings)
+		void configureNativeStatusBar(settings.theme)
 	}, [settings])
 
 	const value = useMemo<SettingsContextValue>(
