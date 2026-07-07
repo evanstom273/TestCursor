@@ -236,6 +236,13 @@ export function BoardPage() {
 						</button>
 					</form>
 
+					{boardState.lists.length === 0 ? (
+						<p className="muted board-empty">
+							This board has no lists yet. Add one above, or create a new board to get
+							To Do / Doing / Done automatically.
+						</p>
+					) : null}
+
 					<DndContext
 						sensors={sensors}
 						collisionDetection={closestCorners}

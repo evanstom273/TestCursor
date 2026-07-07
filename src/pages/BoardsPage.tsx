@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { AppLayout } from '../components/AppLayout'
 import {
 	useBoards,
@@ -9,6 +9,7 @@ import {
 } from '../hooks/useBoards'
 
 export function BoardsPage() {
+	const navigate = useNavigate()
 	const { data: boards = [], isLoading, error } = useBoards()
 	const createBoard = useCreateBoard()
 	const updateBoard = useUpdateBoard()
@@ -25,8 +26,9 @@ export function BoardsPage() {
 			return
 		}
 
-		await createBoard.mutateAsync(title)
+		const board = await createBoard.mutateAsync(title)
 		setNewTitle('')
+		navigate(`/boards/${board.id}`)
 	}
 
 	const startEditing = (id: string, title: string) => {
@@ -49,6 +51,10 @@ export function BoardsPage() {
 	return (
 		<AppLayout title="Your boards">
 			<section className="boards-panel">
+				<p className="boards-panel__intro muted">
+					Create a board, then open it to add lists and cards.
+				</p>
+
 				<form className="inline-form" onSubmit={(event) => void handleCreate(event)}>
 					<input
 						type="text"
@@ -69,7 +75,7 @@ export function BoardsPage() {
 					{boards.map((board) => (
 						<li key={board.id} className="board-list__item">
 							{editingId === board.id ? (
-								<div className="inline-form">
+								<div className="inline-form board-list__edit">
 									<input
 										type="text"
 										value={editTitle}
@@ -93,20 +99,27 @@ export function BoardsPage() {
 								</div>
 							) : (
 								<>
-									<Link to={`/boards/${board.id}`} className="board-list__link">
-										{board.title}
+									<Link to={`/boards/${board.id}`} className="board-list__main">
+										<span className="board-list__title">{board.title}</span>
+										<span className="board-list__hint">Open board</span>
 									</Link>
 									<div className="board-list__actions">
+										<Link to={`/boards/${board.id}`} className="btn btn--primary btn--small">
+											Open
+										</Link>
 										<button
 											type="button"
-											className="btn btn--ghost"
-											onClick={() => startEditing(board.id, board.title)}
+											className="btn btn--ghost btn--small"
+											onClick={(event) => {
+												event.preventDefault()
+												startEditing(board.id, board.title)
+											}}
 										>
 											Rename
 										</button>
 										<button
 											type="button"
-											className="btn btn--danger"
+											className="btn btn--danger btn--small"
 											onClick={() => void deleteBoard.mutateAsync(board.id)}
 										>
 											Delete

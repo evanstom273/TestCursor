@@ -43,6 +43,16 @@ export function useCreateBoard() {
 				throw error
 			}
 
+			const { error: listsError } = await supabase.from('lists').insert([
+				{ board_id: data.id, title: 'To Do', position: 0 },
+				{ board_id: data.id, title: 'Doing', position: 1 },
+				{ board_id: data.id, title: 'Done', position: 2 },
+			])
+
+			if (listsError) {
+				throw listsError
+			}
+
 			return data as Board
 		},
 		onSuccess: () => {

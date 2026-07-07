@@ -16,9 +16,13 @@ export function AppLayout({ title, backTo, children }: AppLayoutProps) {
 				<div className="app-header__left">
 					{backTo ? (
 						<Link to={backTo} className="btn btn--ghost">
-							← Back
+							← Boards
 						</Link>
-					) : null}
+					) : (
+						<Link to="/boards" className="app-header__brand">
+							TestCursor
+						</Link>
+					)}
 					<h1 className="app-header__title">{title}</h1>
 				</div>
 				<div className="app-header__right">
