@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '../lib/supabaseClient'
+import { loadSettings } from '../lib/settings'
 import type { Board } from '../types/database'
 
 export function useBoards() {
@@ -43,11 +44,13 @@ export function useCreateBoard() {
 				throw error
 			}
 
-			const { error: listsError } = await supabase.from('lists').insert([
-				{ board_id: data.id, title: 'To Do', position: 0 },
-				{ board_id: data.id, title: 'Doing', position: 1 },
-				{ board_id: data.id, title: 'Done', position: 2 },
-			])
+			const { error: listsError } = await supabase.from('lists').insert(
+				loadSettings().defaultListColumns.map((title, position) => ({
+					board_id: data.id,
+					title,
+					position,
+				})),
+			)
 
 			if (listsError) {
 				throw listsError

@@ -23,6 +23,7 @@ export type Card = {
 	description: string
 	content_json: CardContentJson
 	position: number
+	attachment_count?: number
 }
 
 export type ChecklistItem = {

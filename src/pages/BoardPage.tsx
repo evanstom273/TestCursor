@@ -18,7 +18,6 @@ import {
 } from '@dnd-kit/sortable'
 import { useMemo, useState, type FormEvent } from 'react'
 import { useParams } from 'react-router-dom'
-import { AppLayout } from '../components/AppLayout'
 import { BoardColumn } from '../components/BoardColumn'
 import { CardModal } from '../components/CardModal'
 import { useCreateCard, useDeleteCard, useReorderCards, useUpdateCard } from '../hooks/useCards'
@@ -217,7 +216,7 @@ export function BoardPage() {
 	}
 
 	return (
-		<AppLayout title={board?.title ?? 'Board'} backTo="/boards">
+		<>
 			{isLoading ? <p className="muted">Loading board…</p> : null}
 			{error ? <p className="form-error">Failed to load board.</p> : null}
 
@@ -283,6 +282,6 @@ export function BoardPage() {
 				onSave={(updates) => updateCard.mutateAsync(updates)}
 				onDelete={(id) => deleteCard.mutateAsync(id)}
 			/>
-		</AppLayout>
+		</>
 	)
 }

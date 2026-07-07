@@ -45,6 +45,29 @@ export function useBoard(boardId: string | undefined) {
 				cards = cardData ?? []
 			}
 
+			if (cards.length > 0) {
+				const cardIds = cards.map((card) => card.id)
+				const { data: attachmentRows, error: attachmentError } = await supabase
+					.from('card_attachments')
+					.select('card_id')
+					.in('card_id', cardIds)
+
+				if (attachmentError) {
+					throw attachmentError
+				}
+
+				const countMap = new Map<string, number>()
+
+				for (const row of attachmentRows ?? []) {
+					countMap.set(row.card_id, (countMap.get(row.card_id) ?? 0) + 1)
+				}
+
+				cards = cards.map((card) => ({
+					...card,
+					attachment_count: countMap.get(card.id) ?? 0,
+				}))
+			}
+
 			return {
 				...board,
 				lists: (lists ?? []).map((list: List) => ({

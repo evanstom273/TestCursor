@@ -46,7 +46,7 @@ export function AuthCallbackPage() {
 			}
 
 			if (session) {
-				navigate('/boards', { replace: true })
+				navigate('/home', { replace: true })
 				return
 			}
 

@@ -1,6 +1,5 @@
 import { useState, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { AppLayout } from '../components/AppLayout'
 import {
 	useBoards,
 	useCreateBoard,
@@ -49,8 +48,7 @@ export function BoardsPage() {
 	}
 
 	return (
-		<AppLayout title="Your boards">
-			<section className="boards-panel">
+		<section className="boards-panel">
 				<p className="boards-panel__intro muted">
 					Create a board, then open it to add lists and cards.
 				</p>
@@ -135,6 +133,5 @@ export function BoardsPage() {
 					<p className="muted">No boards yet. Create your first one above.</p>
 				) : null}
 			</section>
-		</AppLayout>
 	)
 }

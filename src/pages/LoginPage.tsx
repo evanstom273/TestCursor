@@ -15,7 +15,7 @@ export function LoginPage() {
 	const [submitting, setSubmitting] = useState(false)
 
 	if (session) {
-		return <Navigate to="/boards" replace />
+		return <Navigate to="/home" replace />
 	}
 
 	const handlePasswordSignIn = async (event: FormEvent<HTMLFormElement>) => {

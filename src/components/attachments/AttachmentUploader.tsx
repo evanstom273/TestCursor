@@ -1,4 +1,5 @@
 import { useRef, useState, type DragEvent } from 'react'
+import { canUseCameraCapture, capturePhotoFile } from '../../lib/camera'
 
 type AttachmentUploaderProps = {
 	onUpload: (file: File) => Promise<void>
@@ -30,6 +31,23 @@ export function AttachmentUploader({ onUpload, isUploading }: AttachmentUploader
 		}
 	}
 
+	const handleCameraCapture = async () => {
+		setError(null)
+
+		try {
+			const file = await capturePhotoFile()
+
+			if (!file) {
+				setError('Camera capture is only available in the Android app.')
+				return
+			}
+
+			await onUpload(file)
+		} catch (captureError) {
+			setError(captureError instanceof Error ? captureError.message : 'Camera capture failed.')
+		}
+	}
+
 	const handleDrop = (event: DragEvent<HTMLDivElement>) => {
 		event.preventDefault()
 		setDragActive(false)
@@ -51,18 +69,31 @@ export function AttachmentUploader({ onUpload, isUploading }: AttachmentUploader
 				<p className="attachment-uploader__limits muted">
 					Images 5MB · Docs 10MB · Audio 20MB · Video 50MB
 				</p>
-				<button
-					type="button"
-					className="btn btn--primary btn--small"
-					disabled={isUploading}
-					onClick={() => inputRef.current?.click()}
-				>
-					{isUploading ? 'Uploading…' : 'Choose files'}
-				</button>
+				<div className="attachment-uploader__actions">
+					<button
+						type="button"
+						className="btn btn--primary btn--small"
+						disabled={isUploading}
+						onClick={() => inputRef.current?.click()}
+					>
+						{isUploading ? 'Uploading…' : 'Choose files'}
+					</button>
+					{canUseCameraCapture() ? (
+						<button
+							type="button"
+							className="btn btn--ghost btn--small"
+							disabled={isUploading}
+							onClick={() => void handleCameraCapture()}
+						>
+							Take photo
+						</button>
+					) : null}
+				</div>
 				<input
 					ref={inputRef}
 					type="file"
 					multiple
+					accept="image/*,video/*,audio/*,.pdf,.doc,.docx,.txt,.md,.json,.zip"
 					className="attachment-uploader__input"
 					onChange={(event) => void handleFiles(event.target.files)}
 				/>

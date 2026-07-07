@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { formatFileSize } from '../../lib/attachmentLimits'
 import type { CardAttachmentWithUrl } from '../../types/database'
 
@@ -8,14 +9,19 @@ type AttachmentPreviewProps = {
 
 export function AttachmentPreview({ attachment, onDelete }: AttachmentPreviewProps) {
 	const url = attachment.signed_url
+	const [lightboxOpen, setLightboxOpen] = useState(false)
 
 	return (
 		<li className="attachment-item">
 			<div className="attachment-item__preview">
 				{attachment.kind === 'image' && url ? (
-					<a href={url} target="_blank" rel="noopener noreferrer">
+					<button
+						type="button"
+						className="attachment-item__image-button"
+						onClick={() => setLightboxOpen(true)}
+					>
 						<img src={url} alt={attachment.file_name} className="attachment-item__image" />
-					</a>
+					</button>
 				) : null}
 
 				{attachment.kind === 'audio' && url ? (
@@ -51,6 +57,21 @@ export function AttachmentPreview({ attachment, onDelete }: AttachmentPreviewPro
 					Delete
 				</button>
 			</div>
+
+			{lightboxOpen && url ? (
+				<div
+					className="lightbox-backdrop"
+					role="presentation"
+					onClick={() => setLightboxOpen(false)}
+				>
+					<img
+						src={url}
+						alt={attachment.file_name}
+						className="lightbox-image"
+						onClick={(event) => event.stopPropagation()}
+					/>
+				</div>
+			) : null}
 		</li>
 	)
 }

@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
+import { isNativeApp } from './platform'
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
@@ -25,5 +26,9 @@ export const supabase = createClient(
 )
 
 export function getAuthCallbackUrl(): string {
+	if (isNativeApp()) {
+		return 'com.testcursor.app://auth/callback'
+	}
+
 	return `${window.location.origin}/auth/callback`
 }

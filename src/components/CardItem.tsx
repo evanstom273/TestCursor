@@ -37,7 +37,12 @@ export function CardItem({ card, onOpen }: CardItemProps) {
 				⋮⋮
 			</button>
 			<button type="button" className="kanban-card__open" onClick={() => onOpen(card)}>
-				{card.title}
+				<span className="kanban-card__title">{card.title}</span>
+				{(card.attachment_count ?? 0) > 0 ? (
+					<span className="kanban-card__badge" title="Has attachments">
+						📎 {card.attachment_count}
+					</span>
+				) : null}
 			</button>
 		</article>
 	)
