@@ -6,13 +6,18 @@ import App from './App.tsx'
 import { NativeInit } from './components/NativeInit.tsx'
 import { AuthProvider } from './contexts/AuthContext.tsx'
 import { SettingsProvider } from './contexts/SettingsContext.tsx'
+import { applyTheme, loadSettings } from './lib/settings.ts'
 import './index.css'
 import './app.css'
+
+applyTheme(loadSettings().theme)
 
 const queryClient = new QueryClient({
 	defaultOptions: {
 		queries: {
 			staleTime: 30_000,
+			retry: 2,
+			refetchOnWindowFocus: true,
 		},
 	},
 })

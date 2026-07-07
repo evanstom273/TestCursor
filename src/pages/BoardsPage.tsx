@@ -9,7 +9,7 @@ import {
 
 export function BoardsPage() {
 	const navigate = useNavigate()
-	const { data: boards = [], isLoading, error } = useBoards()
+	const { data: boards = [], isLoading, error, refetch } = useBoards()
 	const createBoard = useCreateBoard()
 	const updateBoard = useUpdateBoard()
 	const deleteBoard = useDeleteBoard()
@@ -66,8 +66,19 @@ export function BoardsPage() {
 					</button>
 				</form>
 
-				{isLoading ? <p className="muted">Loading boards…</p> : null}
-				{error ? <p className="form-error">Failed to load boards.</p> : null}
+				{isLoading && boards.length === 0 ? (
+					<div className="page-status page-status--loading">
+						<p>Loading boards…</p>
+					</div>
+				) : null}
+				{error && boards.length === 0 ? (
+					<div className="page-status page-status--error">
+						<p className="form-error">Failed to load boards.</p>
+						<button type="button" className="btn btn--primary" onClick={() => void refetch()}>
+							Try again
+						</button>
+					</div>
+				) : null}
 
 				<ul className="board-list">
 					{boards.map((board) => (

@@ -7,12 +7,19 @@ const NAV_ITEMS = [
 	{ to: '/settings', label: 'Settings', icon: '⚙' },
 ] as const
 
-export function Sidebar() {
+type SidebarProps = {
+	mobileOpen?: boolean
+	onNavigate?: () => void
+}
+
+export function Sidebar({ mobileOpen = false, onNavigate }: SidebarProps) {
 	const { settings, toggleSidebarCollapsed } = useSettings()
 	const collapsed = settings.sidebarCollapsed
 
 	return (
-		<aside className={`sidebar${collapsed ? ' sidebar--collapsed' : ''}`}>
+		<aside
+			className={`sidebar${collapsed ? ' sidebar--collapsed' : ''}${mobileOpen ? ' sidebar--mobile-open' : ''}`}
+		>
 			<div className="sidebar__header">
 				<span className="sidebar__brand">{collapsed ? 'TC' : 'TestCursor'}</span>
 				<button
@@ -33,6 +40,7 @@ export function Sidebar() {
 							`sidebar__link${isActive ? ' sidebar__link--active' : ''}`
 						}
 						end={item.to === '/boards'}
+						onClick={onNavigate}
 					>
 						<span className="sidebar__icon" aria-hidden="true">
 							{item.icon}

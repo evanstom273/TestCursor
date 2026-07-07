@@ -6,6 +6,7 @@ export function useBoard(boardId: string | undefined) {
 	return useQuery({
 		queryKey: ['board', boardId],
 		enabled: Boolean(boardId),
+		retry: 2,
 		queryFn: async (): Promise<BoardWithLists> => {
 			const { data: board, error: boardError } = await supabase
 				.from('boards')
@@ -52,20 +53,18 @@ export function useBoard(boardId: string | undefined) {
 					.select('card_id')
 					.in('card_id', cardIds)
 
-				if (attachmentError) {
-					throw attachmentError
+				if (!attachmentError) {
+					const countMap = new Map<string, number>()
+
+					for (const row of attachmentRows ?? []) {
+						countMap.set(row.card_id, (countMap.get(row.card_id) ?? 0) + 1)
+					}
+
+					cards = cards.map((card) => ({
+						...card,
+						attachment_count: countMap.get(card.id) ?? 0,
+					}))
 				}
-
-				const countMap = new Map<string, number>()
-
-				for (const row of attachmentRows ?? []) {
-					countMap.set(row.card_id, (countMap.get(row.card_id) ?? 0) + 1)
-				}
-
-				cards = cards.map((card) => ({
-					...card,
-					attachment_count: countMap.get(card.id) ?? 0,
-				}))
 			}
 
 			return {

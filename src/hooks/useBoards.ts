@@ -6,6 +6,7 @@ import type { Board } from '../types/database'
 export function useBoards() {
 	return useQuery({
 		queryKey: ['boards'],
+		retry: 2,
 		queryFn: async (): Promise<Board[]> => {
 			const { data, error } = await supabase
 				.from('boards')

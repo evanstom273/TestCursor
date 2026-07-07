@@ -53,7 +53,7 @@ function buildCardMoves(board: BoardWithLists) {
 
 export function BoardPage() {
 	const { boardId = '' } = useParams()
-	const { data: board, isLoading, error } = useBoard(boardId)
+	const { data: board, isLoading, error, refetch } = useBoard(boardId)
 	const createList = useCreateList(boardId)
 	const updateList = useUpdateList(boardId)
 	const deleteList = useDeleteList(boardId)
@@ -217,8 +217,19 @@ export function BoardPage() {
 
 	return (
 		<>
-			{isLoading ? <p className="muted">Loading board…</p> : null}
-			{error ? <p className="form-error">Failed to load board.</p> : null}
+			{isLoading && !boardState ? (
+				<div className="page-status page-status--loading">
+					<p>Loading board…</p>
+				</div>
+			) : null}
+			{error && !boardState ? (
+				<div className="page-status page-status--error">
+					<p className="form-error">Failed to load board.</p>
+					<button type="button" className="btn btn--primary" onClick={() => void refetch()}>
+						Try again
+					</button>
+				</div>
+			) : null}
 
 			{boardState ? (
 				<>
