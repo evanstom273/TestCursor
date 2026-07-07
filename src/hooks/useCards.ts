@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '../lib/supabaseClient'
-import type { BoardWithLists, Card } from '../types/database'
+import type { BoardWithLists, Card, CardContentJson } from '../types/database'
 
 export function useCreateCard(boardId: string) {
 	const queryClient = useQueryClient()
@@ -51,12 +51,14 @@ export function useUpdateCard(boardId: string) {
 			id,
 			title,
 			description,
+			content_json,
 		}: {
 			id: string
 			title?: string
 			description?: string
+			content_json?: CardContentJson
 		}) => {
-			const updates: Partial<Pick<Card, 'title' | 'description'>> = {}
+			const updates: Partial<Pick<Card, 'title' | 'description' | 'content_json'>> = {}
 
 			if (title !== undefined) {
 				updates.title = title
@@ -64,6 +66,10 @@ export function useUpdateCard(boardId: string) {
 
 			if (description !== undefined) {
 				updates.description = description
+			}
+
+			if (content_json !== undefined) {
+				updates.content_json = content_json
 			}
 
 			const { data, error } = await supabase
