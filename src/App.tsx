@@ -1,3 +1,4 @@
+import { ThemeToggle } from './components/ThemeToggle'
 import './App.css'
 
 export default function App() {
@@ -7,6 +8,7 @@ export default function App() {
 
 			<header className="landing__header">
 				<span className="landing__logo">TestCursor</span>
+				<ThemeToggle />
 			</header>
 
 			<section className="landing__hero">
