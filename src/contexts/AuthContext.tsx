@@ -6,18 +6,21 @@ import {
 	useState,
 	type ReactNode,
 } from 'react'
-import type { Session, User } from '@supabase/supabase-js'
-import { getAuthCallbackUrl, isSupabaseConfigured, supabase } from '../lib/supabaseClient'
-import type { Profile } from '../types/database'
+import {
+	GoogleAuthProvider,
+	onAuthStateChanged,
+	signInWithPopup,
+	signOut as firebaseSignOut,
+	type User,
+} from 'firebase/auth'
+import { auth, isFirebaseConfigured } from '../lib/firebase'
 
 type AuthResult = {
 	error: string | null
 }
 
 type AuthContextValue = {
-	session: Session | null
 	user: User | null
-	profile: Profile | null
 	loading: boolean
 	isConfigured: boolean
 	signInWithGoogle: () => Promise<AuthResult>
@@ -26,114 +29,52 @@ type AuthContextValue = {
 
 const AuthContext = createContext<AuthContextValue | null>(null)
 
-async function fetchProfile(userId: string): Promise<Profile | null> {
-	const { data, error } = await supabase
-		.from('profiles')
-		.select('*')
-		.eq('id', userId)
-		.maybeSingle()
-
-	if (error) {
-		console.error('Failed to load profile:', error.message)
-		return null
-	}
-
-	return data as Profile | null
-}
-
 export function AuthProvider({ children }: { children: ReactNode }) {
-	const [session, setSession] = useState<Session | null>(null)
-	const [profile, setProfile] = useState<Profile | null>(null)
-	const [loading, setLoading] = useState(isSupabaseConfigured)
+	const [user, setUser] = useState<User | null>(null)
+	const [loading, setLoading] = useState(isFirebaseConfigured)
 
 	useEffect(() => {
-		if (!isSupabaseConfigured) {
+		if (!auth) {
 			return
 		}
 
-		let mounted = true
-
-		const loadSession = async () => {
-			const {
-				data: { session: currentSession },
-			} = await supabase.auth.getSession()
-
-			if (!mounted) {
-				return
-			}
-
-			setSession(currentSession)
-
-			if (currentSession?.user) {
-				const nextProfile = await fetchProfile(currentSession.user.id)
-				if (mounted) {
-					setProfile(nextProfile)
-				}
-			} else {
-				setProfile(null)
-			}
-
-			if (mounted) {
-				setLoading(false)
-			}
-		}
-
-		void loadSession()
-
-		const {
-			data: { subscription },
-		} = supabase.auth.onAuthStateChange((_event, nextSession) => {
-			setSession(nextSession)
-
-			if (nextSession?.user) {
-				void fetchProfile(nextSession.user.id).then((nextProfile) => {
-					if (mounted) {
-						setProfile(nextProfile)
-					}
-				})
-			} else {
-				setProfile(null)
-			}
-
+		const unsubscribe = onAuthStateChanged(auth, (nextUser) => {
+			setUser(nextUser)
 			setLoading(false)
 		})
 
-		return () => {
-			mounted = false
-			subscription.unsubscribe()
-		}
+		return unsubscribe
 	}, [])
 
 	const value = useMemo<AuthContextValue>(
 		() => ({
-			session,
-			user: session?.user ?? null,
-			profile,
+			user,
 			loading,
-			isConfigured: isSupabaseConfigured,
+			isConfigured: isFirebaseConfigured,
 			signInWithGoogle: async () => {
-				if (!isSupabaseConfigured) {
-					return { error: 'Supabase is not configured.' }
+				if (!auth) {
+					return { error: 'Firebase is not configured.' }
 				}
 
-				const { error } = await supabase.auth.signInWithOAuth({
-					provider: 'google',
-					options: {
-						redirectTo: getAuthCallbackUrl(),
-					},
-				})
+				const provider = new GoogleAuthProvider()
 
-				if (error) {
-					return { error: error.message }
+				try {
+					await signInWithPopup(auth, provider)
+					return { error: null }
+				} catch (error) {
+					const message = error instanceof Error ? error.message : 'Sign-in failed.'
+					return { error: message }
 				}
-
-				return { error: null }
 			},
 			signOut: async () => {
-				await supabase.auth.signOut()
+				if (!auth) {
+					return
+				}
+
+				await firebaseSignOut(auth)
 			},
 		}),
-		[session, profile, loading],
+		[user, loading],
 	)
 
 	return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useAuth } from '../contexts/AuthContext'
 
 export function AccountPanel() {
-	const { user, profile, loading, isConfigured, signInWithGoogle, signOut } = useAuth()
+	const { user, loading, isConfigured, signInWithGoogle, signOut } = useAuth()
 	const [error, setError] = useState<string | null>(null)
 	const [isSigningIn, setIsSigningIn] = useState(false)
 
@@ -10,7 +10,7 @@ export function AccountPanel() {
 		return (
 			<div className="account-panel account-panel--notice">
 				<p>
-					Add your Supabase credentials to <code>.env.local</code> to enable Google
+					Add your Firebase credentials to <code>.env.local</code> to enable Google
 					sign-in.
 				</p>
 			</div>
@@ -26,9 +26,8 @@ export function AccountPanel() {
 	}
 
 	if (user) {
-		const displayName =
-			profile?.full_name ?? user.user_metadata.full_name ?? user.email ?? 'Account'
-		const avatarUrl = profile?.avatar_url ?? user.user_metadata.avatar_url ?? null
+		const displayName = user.displayName ?? user.email ?? 'Account'
+		const avatarUrl = user.photoURL
 
 		return (
 			<div className="account-panel account-panel--signed-in">
@@ -69,8 +68,9 @@ export function AccountPanel() {
 
 		if (result.error) {
 			setError(result.error)
-			setIsSigningIn(false)
 		}
+
+		setIsSigningIn(false)
 	}
 
 	return (
@@ -102,7 +102,7 @@ export function AccountPanel() {
 						d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
 					/>
 				</svg>
-				{isSigningIn ? 'Redirecting…' : 'Continue with Google'}
+				{isSigningIn ? 'Signing in…' : 'Continue with Google'}
 			</button>
 			{error ? <p className="account-panel__error">{error}</p> : null}
 		</div>
